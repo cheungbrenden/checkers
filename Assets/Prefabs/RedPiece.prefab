@@ -75,6 +75,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7401110118969624192, guid: a4d6e20fe6551cf4b9671d2c864767cc, type: 3}
   m_PrefabInstance: {fileID: 3645508823288098462}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &6077046311590529177 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 7404326367506998791, guid: a4d6e20fe6551cf4b9671d2c864767cc, type: 3}
+  m_PrefabInstance: {fileID: 3645508823288098462}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &-639632489891227299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,3 +92,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59989884a297924aab21cbf7137afb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _renderer: {fileID: 6077046311590529177}
+  _mainColor: {r: 1, g: 0, b: 0, a: 1}
+  _kingColor: {r: 1, g: 0.5803922, b: 0.4392157, a: 1}

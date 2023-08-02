@@ -9,26 +9,65 @@ namespace _Scripts
         [SerializeField] private SpriteRenderer _renderer;
 
         // private bool _isOccupied = false;
+        private BoardPiece _occupyingBoardPiece;
 
-        public BoardPiece BoardPiece { get; set; }
+        private int _xBoardPosition;
+        private int _yBoardPosition;
+
+        public int XBoardPosition
+        {
+            get => _xBoardPosition;
+            set => _xBoardPosition = value;
+        }
+
+        public int YBoardPosition
+        {
+            get => _yBoardPosition;
+            set => _yBoardPosition = value;
+        }
+
+
+        public BoardPiece OccupyingBoardPiece
+        {
+            get => _occupyingBoardPiece;
+            set => _occupyingBoardPiece = value;
+        }
 
         public void SetColor(bool isOffcolor)
         {
             _renderer.color = isOffcolor ? _offColor : _mainColor;
-            
         }
 
         public void SelectTile()
         {
-            if (BoardPiece) _renderer.color = _selectedColor;
+            if (_occupyingBoardPiece) _renderer.color = _selectedColor;
         }
 
         public void DeselectTile()
         {
             _renderer.color = _mainColor;
-
-
             // if piece on tile, change tile color
+        }
+
+        public void OnMouseDown()
+        {
+            if (_occupyingBoardPiece != null)
+            {
+                BoardManager.Instance.SelectPiece(_occupyingBoardPiece);
+            }
+
+            else if (BoardManager.Instance.IsMultiCapturePiece)
+            {
+                BoardManager.Instance.HandleMultipleCaptures(BoardManager.Instance.IsMultiCapturePiece, this);
+            }
+            else if (BoardManager.Instance.IsPlayerTurnRed)
+            {
+                BoardManager.Instance.PlayerMove(PlayerColor.RED, this);
+            }
+            else
+            {
+                BoardManager.Instance.PlayerMove(PlayerColor.WHITE, this);
+            }
         }
     }
 }
