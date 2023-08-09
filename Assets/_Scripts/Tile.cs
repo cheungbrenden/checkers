@@ -54,9 +54,10 @@ namespace _Scripts
             if (_occupyingBoardPiece != null)
             {
                 BoardManager.Instance.SelectPiece(_occupyingBoardPiece);
+                return;
             }
 
-            else if (BoardManager.Instance.IsMultiCapturePiece)
+            if (BoardManager.Instance.IsMultiCapturePiece)
             {
                 BoardManager.Instance.HandleMultipleCaptures(BoardManager.Instance.IsMultiCapturePiece, this);
             }
@@ -67,6 +68,14 @@ namespace _Scripts
             else
             {
                 BoardManager.Instance.PlayerMove(PlayerColor.WHITE, this);
+            }
+
+            if ((BoardManager.Instance.IsPlayerTurnRed && BoardManager.Instance.RedPlayer == PlayerType.Computer) ||
+                (!BoardManager.Instance.IsPlayerTurnRed && BoardManager.Instance.WhitePlayer == PlayerType.Computer))
+            {
+                BoardManager.Instance.Waiter();
+                // Debug.Log("bbbb");
+                // BoardManager.Instance.ComputerMove();
             }
         }
     }

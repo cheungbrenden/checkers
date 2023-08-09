@@ -32,10 +32,10 @@ namespace _Scripts
                     BoardManager.Instance.GenerateBoard();
                     break;
                 case GameState.GenerateAndSetPieces:
-                    BoardManager.Instance.GenerateAndSetBoardPiece();
+                    BoardManager.Instance.GenerateAndSetBoardPiece(BoardManager.Instance.StandardBoard);
                     break;
                 case GameState.PlayCheckers:
-                    BoardManager.Instance.PlayCheckers();
+                    BoardManager.Instance.PlayCheckers(PlayerType.Computer, PlayerType.Computer);
                     break;
                 case GameState.EndGameResult:
                     break;
@@ -56,5 +56,11 @@ namespace _Scripts
         GenerateAndSetPieces,
         PlayCheckers,
         EndGameResult
+    }
+    
+    public enum PlayerType
+    {
+        Human,
+        Computer
     }
 }
