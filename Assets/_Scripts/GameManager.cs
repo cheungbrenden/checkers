@@ -44,8 +44,6 @@ namespace _Scripts
             }
 
             OnGameStateChanged?.Invoke(State);
-        
-        
         }
     
     }

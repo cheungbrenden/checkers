@@ -59,23 +59,21 @@ namespace _Scripts
 
             if (BoardManager.Instance.IsMultiCapturePiece)
             {
-                BoardManager.Instance.HandleMultipleCaptures(BoardManager.Instance.IsMultiCapturePiece, this);
+                BoardManager.Instance.HandleMultipleCaptures(BoardManager.Instance.IsMultiCapturePiece, (XBoardPosition, YBoardPosition));
             }
             else if (BoardManager.Instance.IsPlayerTurnRed)
             {
-                BoardManager.Instance.PlayerMove(PlayerColor.RED, this);
+                BoardManager.Instance.PlayerMove(PlayerColor.RED, (XBoardPosition, YBoardPosition));
             }
             else
             {
-                BoardManager.Instance.PlayerMove(PlayerColor.WHITE, this);
+                BoardManager.Instance.PlayerMove(PlayerColor.WHITE, (XBoardPosition, YBoardPosition));
             }
 
             if ((BoardManager.Instance.IsPlayerTurnRed && BoardManager.Instance.RedPlayer == PlayerType.Computer) ||
                 (!BoardManager.Instance.IsPlayerTurnRed && BoardManager.Instance.WhitePlayer == PlayerType.Computer))
             {
                 BoardManager.Instance.Waiter();
-                // Debug.Log("bbbb");
-                // BoardManager.Instance.ComputerMove();
             }
         }
     }

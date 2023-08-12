@@ -12,6 +12,14 @@ namespace _Scripts
         {
             _isKing = true;
             _renderer.color = _kingColor;
+            BoardManager.Instance._numWhiteKings++;
+            BoardManager.Instance._numWhiteMen--;
+        }
+        
+        public override void ConvertToMan()
+        {
+            _isKing = false;
+            _renderer.color = _mainColor;
         }
     }
 }

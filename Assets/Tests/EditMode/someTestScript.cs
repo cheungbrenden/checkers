@@ -11,7 +11,9 @@ public class someTestScript
     [Test]
     public void someTestScriptSimplePasses()
     {
-        Assert.AreEqual(1, 1);
+        
+        var x = BoardManager.Instance.Tiles;
+        // Assert.AreEqual(BoardManager.Instance.Tiles, new Tile[8,8]);
     }
     
 }

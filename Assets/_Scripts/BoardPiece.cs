@@ -5,7 +5,7 @@ namespace _Scripts
 {
     public class BoardPiece : MonoBehaviour
     {
-        protected Tile _onTile;
+        protected (int, int) _onTilePosition;
         protected bool _isKing = false;
 
         
@@ -15,47 +15,27 @@ namespace _Scripts
         [SerializeField] protected Color _mainColor, _kingColor;
         protected PieceColor _pieceColor;
 
-        private bool _isPieceSelected = false;
 
-
-        public Tile OnTile
+        public (int, int) OnTilePosition
         {
-            get => _onTile;
-            set => _onTile = value;
+            get => _onTilePosition;
+            set => _onTilePosition = value;
         }
 
-        public bool IsKing
-        {
-            get => _isKing;
-            set => _isKing = value;
-        }
+        public bool IsKing => _isKing;
 
-        public PieceColor PieceColor
-        {
-            get => _pieceColor;
-        }
+        public PieceColor PieceColor => _pieceColor;
 
-        public bool IsPieceSelected
-        {
-            get => _isPieceSelected;
-            set => _isPieceSelected = value;
-        }
-        
+        public bool IsPieceSelected { get; set; } = false;
+
         private void OnMouseDown()
         {
             BoardManager.Instance.SelectPiece(this);
         }
 
-        
-        public void MovePieceToTile(Tile destinationTile)
-        {
-            _onTile.OccupyingBoardPiece.transform.position = destinationTile.transform.position;
-            _onTile.OccupyingBoardPiece = null;
-            _onTile = destinationTile;
-            _onTile.OccupyingBoardPiece = this;
-        }
-
         public virtual void ConvertToKing() {}
+        
+        public virtual void ConvertToMan() {}
     }
 }
 
