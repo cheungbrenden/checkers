@@ -22,9 +22,17 @@ namespace _Scripts
             set => _onTilePosition = value;
         }
 
-        public bool IsKing => _isKing;
+        public bool IsKing
+        {
+            get => _isKing;
+            set => _isKing = value;
+        }
 
-        public PieceColor PieceColor => _pieceColor;
+        public PieceColor PieceColor
+        {
+            get => _pieceColor;
+            set => _pieceColor = value;
+        }
 
         public bool IsPieceSelected { get; set; } = false;
 

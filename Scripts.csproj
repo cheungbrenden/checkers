@@ -58,6 +58,7 @@
      <Compile Include="Assets\_Scripts\BoardPiece.cs" />
      <Compile Include="Assets\_Scripts\WhitePiece.cs" />
      <Compile Include="Assets\_Scripts\BoardManager.cs" />
+     <Compile Include="Assets\_Scripts\Move.cs" />
      <None Include="Assets\_Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.25f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

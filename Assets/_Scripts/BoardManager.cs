@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -61,13 +62,33 @@ namespace _Scripts
                                        "..w.....\n" +
                                        "...r.r..\n" +
                                        "........\n";
+        
+        private const string Custom5 = "........\n" +
+                                       "........\n" +
+                                       "........\n" +
+                                       "........\n" +
+                                       ".w.r.w..\n" +
+                                       "........\n" +
+                                       "...r.r..\n" +
+                                       "........\n";
+
+        private const string Puzzle1 = ".R.w....\n" +
+                                       "........\n" +
+                                       "........\n" +
+                                       "........\n" +
+                                       "........\n" +
+                                       "R.w.....\n" +
+                                       ".......w\n" +
+                                       "..W.r.r.\n";
 
         public string StandardBoard => Standard;
         public string CustomBoard1 => Custom1;
         public string CustomBoard2 => Custom2;
         public string CustomBoard3 => Custom3;
-
         public string CustomBoard4 => Custom4;
+
+        public string CustomBoard5 => Custom5;
+        public string CustomPuzzle1 => Puzzle1;
 
 
         [SerializeField] private int _height = 8, _width = 8;
@@ -105,11 +126,14 @@ namespace _Scripts
 
         public Tile TileSelected { get; set; } = null;
 
+        // TODO: fix
+        // public Move() {}(int ,t int)  private List<ArrayList> gameLog = new List<ArrayList>();
+
 
         // Engine Stuff
 
-        private WaitForSeconds moveDelay = new WaitForSeconds(0.1f);
-        private int iterations = 100;
+        private WaitForSeconds moveDelay = null; // new WaitForSeconds(0.01f);
+        private int iterations = 1000;
 
         public int _numRedMen = 0;
         public int _numWhiteMen = 0;
@@ -147,13 +171,13 @@ namespace _Scripts
                     ComputerMove();
                     yield return moveDelay;
                 }
-        
+
                 ResetBoard();
                 print(i + 1);
 
                 // print($"{_numRedMen} {_numWhiteMen} {_numRedKings} {_numWhiteKings}");
             }
-        
+
             Debug.Log($"{_redWins} {_whiteWins}");
         }
 
@@ -300,21 +324,29 @@ namespace _Scripts
                         _numWhiteMen++;
                         whitePieceIndex++;
                         break;
-                    // case "R":
-                    //     RedPiece newRedKing = Instantiate(_redPiecePrefab, new Vector2(x, y), Quaternion.identity);
-                    //     newRedKing.ConvertToKing();
-                    //     _redPieces.Add(newRedKing);
-                    //     newRedKing.OnTile = _tiles[x, y];
-                    //     _tiles[x, y].OccupyingBoardPiece = newRedKing;
-                    //     break;
-                    // case "W":
-                    //     WhitePiece newWhiteKing =
-                    //         Instantiate(_whitePiecePrefab, new Vector2(x, y), Quaternion.identity);
-                    //     newWhiteKing.ConvertToKing();
-                    //     _whitePieces.Add(newWhiteKing);
-                    //     newWhiteKing.OnTile = _tiles[x, y];
-                    //     _tiles[x, y].OccupyingBoardPiece = newWhiteKing;
-                    //     break;
+                    case "R":
+                        BoardPiece newRedKing = _storeRedPieces[redPieceIndex];
+                        newRedKing.gameObject.SetActive(true);
+                        _redPieces.Add(newRedKing);
+                        newRedKing.transform.position = new Vector2(x, y);
+                        newRedKing.OnTilePosition = (x, y);
+                        _tiles[x, y].OccupyingBoardPiece = newRedKing;
+                        newRedKing.ConvertToKing();
+                        _numRedKings++;
+                        redPieceIndex++;
+                        break;
+                    case "W":
+                        BoardPiece newWhiteKing = _storeWhitePieces[whitePieceIndex];
+                        newWhiteKing.gameObject.SetActive(true);
+                        _whitePieces.Add(newWhiteKing);
+                        newWhiteKing.transform.position = new Vector2(x, y);
+                        newWhiteKing.OnTilePosition = (x, y);
+                        _tiles[x, y].OccupyingBoardPiece = newWhiteKing;
+                        newWhiteKing.ConvertToKing();
+                        ;
+                        _numWhiteKings++;
+                        whitePieceIndex++;
+                        break;
                     default:
                         break;
                 }
@@ -338,7 +370,7 @@ namespace _Scripts
             {
                 position = _tiles;
             }
-            
+
             var removedPiece = position[x, y].OccupyingBoardPiece;
 
             if (changeOnMainBoard)
@@ -369,13 +401,11 @@ namespace _Scripts
 
                     _whitePieces.Remove(removedPiece);
                 }
-
             }
-            
-            
-            
-            _tiles[x, y].OccupyingBoardPiece.gameObject.SetActive(false);
-            _tiles[x, y].OccupyingBoardPiece = null;
+
+
+            position[x, y].OccupyingBoardPiece.gameObject.SetActive(false);
+            position[x, y].OccupyingBoardPiece = null;
         }
 
         public void RemovePiece(Tile tile)
@@ -422,49 +452,7 @@ namespace _Scripts
             piece.IsPieceSelected = true;
         }
 
-        // // copy of ListAllValidMoves funciton befoer I fuck shit up
-
-        // public (List<(Tile, Tile, Tile)>, bool) ListAllValidMoves(Tile[,] position, PieceColor pieceColor)
-        // {
-        //     var captureMoves = new List<(Tile, Tile, Tile)>();
-        //     var shiftMoves = new List<(Tile, Tile, Tile)>();
-        //
-        //     // cannot do this to do function from any position UNLESSSSSSSSS position also includes lists of them pieces
-        //     var pieceList = pieceColor == PieceColor.RED ? _redPieces : _whitePieces;
-        //
-        //     foreach (var piece in pieceList)
-        //     {
-        //         captureMoves.AddRange(ListCaptureMoves(position, piece));
-        //
-        //         if (!captureMoves.Any()) // if list is empty
-        //         {
-        //             shiftMoves.AddRange(ListShiftingMoves(position, piece));
-        //         }
-        //     }
-        //
-        //     // Debug.Log("Capture Moves:");
-        //     // foreach (var move in captureMoves)
-        //     // {
-        //     //     Debug.Log(move);
-        //     // }
-        //     //
-        //     // Debug.Log("Shift Moves:");
-        //     // foreach (var move in shiftMoves)
-        //     // {
-        //     //     Debug.Log(move);
-        //     // }
-        //
-        //     if (captureMoves.Any())
-        //     {
-        //         return (captureMoves, true);
-        //     }
-        //
-        //     return (shiftMoves, false);
-        // }
-
-        // TODO: want to list all valid moves from any position
-
-        // (StartTile, EndTile, optional CapturingTile)
+        // (startTilePos, (int,in at  )endTilePos)  , (int, int) captuerTerreTilePos, pi(PiecisManCapturedisbool is CaptuermaptureMan , bool is Pormoromotion) public stStarrttTilePos  = startTilePos;public Star(int, int) StartTilePos  {get; }EndTilePosCapturreTileTilePosIsCapturereManboolIsPro = edndTilePos;CaptureTilePos = capturerTilePos;=  = Tile, EndTile, optional CapturingTile)
         public List<((int, int), (int, int), (int, int))> ListAllValidMoves(PieceColor pieceColor,
             Tile[,] position = null)
         {
@@ -484,11 +472,11 @@ namespace _Scripts
                     BoardPiece piece = position[i, j].OccupyingBoardPiece;
                     if (piece && (piece.PieceColor == pieceColor))
                     {
-                        captureMoves.AddRange(ListCaptureMoves(piece));
+                        captureMoves.AddRange(ListCaptureMoves(piece, position));
 
                         if (!captureMoves.Any()) // if list is empty
                         {
-                            shiftMoves.AddRange(ListShiftingMoves(piece));
+                            shiftMoves.AddRange(ListShiftingMoves(piece, position));
                         }
                     }
                 }
@@ -532,7 +520,7 @@ namespace _Scripts
                 if (tileY != _redKingRow) // check if piece is not on last row
                 {
                     if (tileX != 0 &&
-                        _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece ==
+                        position[tileX - 1, tileY + 1].OccupyingBoardPiece ==
                         null) // check if piece is not on first column and if so, can move  
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX - 1, tileY + 1), (-1, -1)));
@@ -540,7 +528,7 @@ namespace _Scripts
                         // listShiftingMoves.Add(new Vector4(tileX, tileY, tileX - 1, t ileY + 1));
                     }
 
-                    if (tileX != 7 && _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece == null)
+                    if (tileX != 7 && position[tileX + 1, tileY + 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX + 1, tileY + 1), (-1, -1)));
                     }
@@ -548,12 +536,12 @@ namespace _Scripts
 
                 if (piece.IsKing && tileY != _whiteKingRow)
                 {
-                    if (tileX != 0 && _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece == null)
+                    if (tileX != 0 && position[tileX - 1, tileY - 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX - 1, tileY - 1), (-1, -1)));
                     }
 
-                    if (tileX != 7 && _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece == null)
+                    if (tileX != 7 && position[tileX + 1, tileY - 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX + 1, tileY - 1), (-1, -1)));
                     }
@@ -564,14 +552,14 @@ namespace _Scripts
                 if (tileY != 0) // check if piece is not on last row
                 {
                     if (tileX != 0 &&
-                        _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece ==
+                        position[tileX - 1, tileY - 1].OccupyingBoardPiece ==
                         null) // check if piece is not on first column and if so, can move  
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX - 1, tileY - 1), (-1, -1)));
                         // listShiftingMoves.Add(new Vector4(tileX, tileY, tileX - 1, t ileY + 1));
                     }
 
-                    if (tileX != 7 && _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece == null)
+                    if (tileX != 7 && position[tileX + 1, tileY - 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX + 1, tileY - 1), (-1, -1)));
                     }
@@ -579,12 +567,12 @@ namespace _Scripts
 
                 if (piece.IsKing && tileY != 7)
                 {
-                    if (tileX != 0 && _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece == null)
+                    if (tileX != 0 && position[tileX - 1, tileY + 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX - 1, tileY + 1), (-1, -1)));
                     }
 
-                    if (tileX != 7 && _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece == null)
+                    if (tileX != 7 && position[tileX + 1, tileY + 1].OccupyingBoardPiece == null)
                     {
                         listShiftingMoves.Add(((tileX, tileY), (tileX + 1, tileY + 1), (-1, -1)));
                     }
@@ -610,18 +598,18 @@ namespace _Scripts
             {
                 if (tileY <= 5) // check if piece is not on last row or second to last row
                 {
-                    if (tileX >= 2 && _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
-                        _tiles[tileX - 2, tileY + 2].OccupyingBoardPiece == null)
+                    if (tileX >= 2 && position[tileX - 1, tileY + 1].OccupyingBoardPiece != null &&
+                        position[tileX - 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
+                        position[tileX - 2, tileY + 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX - 2, tileY + 2), (tileX - 1, tileY + 1)));
                         // listCapturingMoves.Add(new Vector4(tileX, tileY, tileX - 2, tileY + 2));
                     }
 
-                    if (tileX <= 5 && _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
-                        _tiles[tileX + 2, tileY + 2].OccupyingBoardPiece == null)
+                    if (tileX <= 5 && position[tileX + 1, tileY + 1].OccupyingBoardPiece != null &&
+                        position[tileX + 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
+                        position[tileX + 2, tileY + 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX + 2, tileY + 2), (tileX + 1, tileY + 1)));
@@ -631,18 +619,18 @@ namespace _Scripts
 
                 if (piece.IsKing && tileY >= 2)
                 {
-                    if (tileX >= 2 && _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
-                        _tiles[tileX - 2, tileY - 2].OccupyingBoardPiece == null)
+                    if (tileX >= 2 && position[tileX - 1, tileY - 1].OccupyingBoardPiece != null &&
+                        position[tileX - 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
+                        position[tileX - 2, tileY - 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX - 2, tileY - 2), (tileX - 1, tileY - 1)));
                         // listCapturingMoves.Add(new Vector4(tileX, tileY, tileX - 2, tileY + 2));
                     }
 
-                    if (tileX <= 5 && _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
-                        _tiles[tileX + 2, tileY - 2].OccupyingBoardPiece == null)
+                    if (tileX <= 5 && position[tileX + 1, tileY - 1].OccupyingBoardPiece != null &&
+                        position[tileX + 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.WHITE &&
+                        position[tileX + 2, tileY - 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX + 2, tileY - 2), (tileX + 1, tileY - 1)));
@@ -654,18 +642,18 @@ namespace _Scripts
             {
                 if (tileY >= 2) // check if piece is not on last row or second to last row
                 {
-                    if (tileX >= 2 && _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX - 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
-                        _tiles[tileX - 2, tileY - 2].OccupyingBoardPiece == null)
+                    if (tileX >= 2 && position[tileX - 1, tileY - 1].OccupyingBoardPiece != null &&
+                        position[tileX - 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
+                        position[tileX - 2, tileY - 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX - 2, tileY - 2), (tileX - 1, tileY - 1)));
                         // listCapturingMoves.Add(new Vector4(tileX, tileY, tileX - 2, tileY + 2));
                     }
 
-                    if (tileX <= 5 && _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX + 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
-                        _tiles[tileX + 2, tileY - 2].OccupyingBoardPiece == null)
+                    if (tileX <= 5 && position[tileX + 1, tileY - 1].OccupyingBoardPiece != null &&
+                        position[tileX + 1, tileY - 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
+                        position[tileX + 2, tileY - 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX + 2, tileY - 2), (tileX + 1, tileY - 1)));
@@ -675,18 +663,18 @@ namespace _Scripts
 
                 if (piece.IsKing && tileY <= 5)
                 {
-                    if (tileX >= 2 && _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX - 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
-                        _tiles[tileX - 2, tileY + 2].OccupyingBoardPiece == null)
+                    if (tileX >= 2 && position[tileX - 1, tileY + 1].OccupyingBoardPiece != null &&
+                        position[tileX - 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
+                        position[tileX - 2, tileY + 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX - 2, tileY + 2), (tileX - 1, tileY + 1)));
                         // listCapturingMoves.Add(new Vector4(tileX, tileY, tileX - 2, tileY + 2));
                     }
 
-                    if (tileX <= 5 && _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece != null &&
-                        _tiles[tileX + 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
-                        _tiles[tileX + 2, tileY + 2].OccupyingBoardPiece == null)
+                    if (tileX <= 5 && position[tileX + 1, tileY + 1].OccupyingBoardPiece != null &&
+                        position[tileX + 1, tileY + 1].OccupyingBoardPiece.PieceColor == PieceColor.RED &&
+                        position[tileX + 2, tileY + 2].OccupyingBoardPiece == null)
                     {
                         listCapturingMoves.Add(
                             ((tileX, tileY), (tileX + 2, tileY + 2), (tileX + 1, tileY + 1)));
@@ -700,7 +688,6 @@ namespace _Scripts
 
         public void PlayerMove(PlayerColor playerColor, (int, int) destinationTilePosition) // add bool for mutlicapture
         {
-            print("test");
             PieceColor pieceColor;
             int lastRow;
 
@@ -715,41 +702,36 @@ namespace _Scripts
                 lastRow = 0;
             }
 
-//
-            if (SelectedBoardPiece)
+
+            if (!SelectedBoardPiece) return;
+            foreach (var move in ListAllValidMoves(pieceColor))
             {
-                foreach (var move in ListAllValidMoves(pieceColor))
+                if (move.Item1 != SelectedBoardPiece.OnTilePosition || move.Item2 != destinationTilePosition) continue;
+                MovePieceToTile(SelectedBoardPiece, destinationTilePosition);
+
+                if (move.Item3 != (-1, -1))
                 {
-                    if (move.Item1 == SelectedBoardPiece.OnTilePosition && move.Item2 == destinationTilePosition)
-                        
-                    {
-                        MovePieceToTile(SelectedBoardPiece, destinationTilePosition);
-
-                        if (move.Item3 != (-1, -1))
-                        {
-                            RemovePiece(move.Item3);
-                        }
-
-                        if (destinationTilePosition.Item2 == lastRow && !SelectedBoardPiece.IsKing)
-                        {
-                            SelectedBoardPiece.ConvertToKing();
-                            IsPlayerTurnRed = !IsPlayerTurnRed;
-                            break;
-                        }
-
-                        if (move.Item3 == (-1,-1) || ListCaptureMoves(SelectedBoardPiece).Count == 0)
-                        {
-                            IsPlayerTurnRed = !IsPlayerTurnRed;
-                            break;
-                        }
-                        else
-                        {
-                            IsMultiCapturePiece = SelectedBoardPiece;
-                            break;
-                        }
-                        // if other captures are not possible, end turn, otherwise allow player to keep their turn and only allow captures using that piece
-                    }
+                    RemovePiece(move.Item3);
                 }
+
+                if (destinationTilePosition.Item2== lastRow && !SelectedBoardPiece.IsKing)
+                {
+                    SelectedBoardPiece.ConvertToKing();
+                    IsPlayerTurnRed = !IsPlayerTurnRed;
+                    break;
+                }
+
+                if (move.Item3 == (-1, -1) || ListCaptureMoves(SelectedBoardPiece).Count == 0)
+                {
+                    IsPlayerTurnRed = !IsPlayerTurnRed;
+                    break;
+                }
+                else
+                {
+                    IsMultiCapturePiece = SelectedBoardPiece;
+                    break;
+                }
+                // if other captures are not possible, end turn, otherwise allow player to keep their turn and only allow captures using that piece
             }
         }
 
@@ -811,9 +793,8 @@ namespace _Scripts
             {
                 Waiter();
             }
-            
         }
-        
+
 
         public void Waiter()
         {
@@ -851,11 +832,13 @@ namespace _Scripts
 
                     if (IsPlayerTurnRed)
                     {
-                        (startTilePos, destinationTilePos, captureTilePos) = DetermineRedComputerMove(multiCapturePiece);
+                        (startTilePos, destinationTilePos, captureTilePos) =
+                            DetermineRedComputerMove(multiCapturePiece);
                     }
                     else
                     {
-                        (startTilePos, destinationTilePos, captureTilePos) = DetermineWhiteComputerMove(multiCapturePiece);
+                        (startTilePos, destinationTilePos, captureTilePos) =
+                            DetermineWhiteComputerMove(multiCapturePiece);
                     }
 
                     if (!_gameInProgress)
@@ -897,11 +880,11 @@ namespace _Scripts
 
             Move();
         }
-        
+
         public ((int, int), (int, int), (int, int)) DetermineRedComputerMove(BoardPiece multiCapturePiece = null)
         {
             PieceColor pieceColor = PieceColor.RED;
-        
+
             List<((int, int), (int, int), (int, int))> moves;
 
             if (!multiCapturePiece)
@@ -912,27 +895,28 @@ namespace _Scripts
             {
                 moves = ListCaptureMoves(multiCapturePiece);
             }
-        
+
             if (moves.Count == 0)
             {
                 // Debug.Log("White Won");
                 _whiteWins++;
                 _gameInProgress = false;
-                return ((-1, -1) , (-1, -1), (-1, -1));
+                return ((-1, -1), (-1, -1), (-1, -1));
             }
-        
+
             if (moves.Count == 1)
             {
                 return moves[0];
             }
-        
+
             return RandomMove(moves);
+            //return Minimax(moves, true);
         }
-        
+
         public ((int, int), (int, int), (int, int)) DetermineWhiteComputerMove(BoardPiece multiCapturePiece = null)
         {
             PieceColor pieceColor = PieceColor.WHITE;
-        
+
             List<((int, int), (int, int), (int, int))> moves;
 
             if (!multiCapturePiece)
@@ -943,31 +927,31 @@ namespace _Scripts
             {
                 moves = ListCaptureMoves(multiCapturePiece);
             }
-        
+
             if (moves.Count == 0)
             {
                 // Debug.Log("Red Won");
                 _redWins++;
                 _gameInProgress = false;
-                return ((-1, -1) , (-1, -1), (-1, -1));
+                return ((-1, -1), (-1, -1), (-1, -1));
             }
-        
+
             if (moves.Count == 1)
             {
                 return moves[0];
             }
-        
+
             return RandomMove(moves);
-            //return (Minimax(moves, false), isCapture);
+            // return Minimax(moves, false);
         }
-        
-        
+
+
         // Algorithms 
         private ((int, int), (int, int), (int, int)) FirstMoveInList(List<((int, int), (int, int), (int, int))> moves)
         {
             return moves[0];
         }
-        
+
         private ((int, int), (int, int), (int, int)) RandomMove(List<((int, int), (int, int), (int, int))> moves)
         {
             var random = new Random();
@@ -978,54 +962,84 @@ namespace _Scripts
         // // do a shitty version first and then we can bitboard/optimaizing stuff
         //
         // // idk how to call positions
-        // private (int, int, int, int) CountPieces(Tile[,] position)
+
+        // something wronk here?
+        // private Tile[,] CreateBoardCopy(Tile[,] originalBoard = null)
         // {
-        //     int redManCount = 0, redKingCount = 0, whiteManCount = 0, whiteKingCount = 0;
+        //     originalBoard ??= _tiles;
         //
-        //     for (int i = 0; i < position.GetLength(0); i++)
+        //     Tile[,] newBoard = new Tile[8, 8];
+        //     for (int i = 0; i < 8; i++)
         //     {
-        //         for (int j = 0; j < position.GetLength(1); j++)
+        //         for (int j = 0; j < 8; j++)
         //         {
-        //             BoardPiece piece = position[i, j].OccupyingBoardPiece;
-        //             if (piece)
-        //             {
-        //                 if (piece.PieceColor == PieceColor.RED)
-        //                 {
-        //                     if (piece.IsKing)
-        //                     {
-        //                         redKingCount++;
-        //                     }
-        //                     else
-        //                     {
-        //                         redManCount++;
-        //                     }
-        //                 }
+        //             newBoard[i, j] = Instantiate(originalBoard[i, j]);
         //
-        //                 else
-        //                 {
-        //                     if (piece.IsKing)
-        //                     {
-        //                         whiteKingCount++;
-        //                     }
-        //                     else
-        //                     {
-        //                         whiteManCount++;
-        //                     }
-        //                 }
+        //             if (originalBoard[i, j].OccupyingBoardPiece)
+        //             {
+        //                 newBoard[i, j].OccupyingBoardPiece = Instantiate(originalBoard[i, j].OccupyingBoardPiece);
+        //                 newBoard[i, j].OccupyingBoardPiece.IsKing = originalBoard[i, j].OccupyingBoardPiece.IsKing;
+        //                 newBoard[i, j].OccupyingBoardPiece.PieceColor = originalBoard[i, j].OccupyingBoardPiece.PieceColor;
+        //                 newBoard[i, j].OccupyingBoardPiece.OnTilePosition = originalBoard[i, j].OccupyingBoardPiece.OnTilePosition;
         //             }
+        //             newBoard[i, j].XBoardPosition = originalBoard[i, j].XBoardPosition;
+        //             newBoard[i, j].YBoardPosition = originalBoard[i, j].YBoardPosition;
         //         }
         //     }
         //
-        //     return (redManCount, redKingCount, whiteManCount, whiteKingCount);
+        //     return newBoard;
         // }
-        //
-        // private int Evaluation(Tile[,] position, (int, int, int, int) pieceCount)
-        // {
-        //     return (pieceCount.Item1 - pieceCount.Item3) * MenValue + (pieceCount.Item2 - pieceCount.Item4) * KingValue;
-        // }
-        //
+
+        private (int, int, int, int) CountPieces(Tile[,] position)
+        {
+            int redManCount = 0, redKingCount = 0, whiteManCount = 0, whiteKingCount = 0;
+
+            for (int i = 0; i < position.GetLength(0); i++)
+            {
+                for (int j = 0; j < position.GetLength(1); j++)
+                {
+                    BoardPiece piece = position[i, j].OccupyingBoardPiece;
+                    if (piece)
+                    {
+                        // print($"{i} {j}");
+                        if (piece.PieceColor == PieceColor.RED)
+                        {
+                            if (piece.IsKing)
+                            {
+                                redKingCount++;
+                            }
+                            else
+                            {
+                                redManCount++;
+                            }
+                        }
+
+                        else
+                        {
+                            if (piece.IsKing)
+                            {
+                                whiteKingCount++;
+                            }
+                            else
+                            {
+                                whiteManCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return (redManCount, redKingCount, whiteManCount, whiteKingCount);
+        }
+
+        private int Evaluation(Tile[,] position, (int, int, int, int) pieceCount)
+        {
+            return (pieceCount.Item1 - pieceCount.Item3) * MenValue + (pieceCount.Item2 - pieceCount.Item4) * KingValue;
+        }
+
         // // note: maximizing player is Red
-        // private (Tile, Tile, Tile) Minimax(List<(Tile, Tile, Tile)> moves, bool isRed)
+        // private ((int, int), (int, int), (int, int)) Minimax(List<((int, int), (int, int), (int, int))> moves,
+        //     bool isRed)
         // {
         //     int MinimaxAlgo(Tile[,] position, int depth, bool maximizingPlayer)
         //     {
@@ -1034,16 +1048,21 @@ namespace _Scripts
         //         (redManCount, redKingCount, whiteManCount, whiteKingCount) = CountPieces(position);
         //
         //         if (depth == 0 || (redManCount + redKingCount == 0) || (whiteManCount + whiteKingCount == 0))
+        //         {
+        //             // print(Evaluation(null, (redManCount, redKingCount, whiteManCount, whiteKingCount)));
         //             return Evaluation(null, (redManCount, redKingCount, whiteManCount, whiteKingCount));
-        //
+        //         }
         //
         //         if (maximizingPlayer)
         //         {
         //             int maxEval = int.MinValue;
-        //             var (whiteMoves, isCapture) = ListAllValidMoves(PieceColor.WHITE, position);
+        //             
+        //             var whiteMoves = ListAllValidMoves(PieceColor.WHITE, position);
         //             foreach (var move in whiteMoves)
         //             {
-        //                 var newPosition = ApplyMoveToPosition(move, position, false);
+        //                 // need to consider multi capture
+        //                 var positionCopy = CreateBoardCopy(position);
+        //                 var newPosition = ApplyMoveToPosition(move, positionCopy, false);
         //                 maxEval = Math.Max(maxEval, MinimaxAlgo(newPosition, depth - 1, false));
         //             }
         //
@@ -1052,10 +1071,11 @@ namespace _Scripts
         //         else
         //         {
         //             int minEval = int.MaxValue;
-        //             var (redMoves, isCapture) = ListAllValidMoves(PieceColor.RED, position);
+        //             var redMoves = ListAllValidMoves(PieceColor.RED, position);
         //             foreach (var move in redMoves)
         //             {
-        //                 var newPosition = ApplyMoveToPosition(move, position, false);
+        //                 var positionCopy = CreateBoardCopy(position);
+        //                 var newPosition = ApplyMoveToPosition(move, positionCopy, false);
         //                 minEval = Math.Min(minEval, MinimaxAlgo(newPosition, depth - 1, true));
         //             }
         //
@@ -1063,14 +1083,17 @@ namespace _Scripts
         //         }
         //     }
         //
-        //     (Tile, Tile, Tile) bestMove = (null, null, null);
+        //     ((int, int), (int, int), (int, int)) bestMove = ((-1, -1), (-1, -1), (-1, -1));
         //     var score = int.MinValue;
+        //
         //     foreach (var move in moves)
         //     {
-        //         Tile[,] tilesCopy = _tiles.Clone() as Tile[,];
-        //
+        //         Tile[,] tilesCopy = CreateBoardCopy();
+        //         
+        //         // this makes another red piece appear because piece.OnTileLocation is not reset after run 
         //         var newPos = ApplyMoveToPosition(move, tilesCopy, false);
         //         var newPosScore = MinimaxAlgo(newPos, 0, isRed);
+        //         print($"{move} {newPosScore}");
         //         if (newPosScore > score)
         //         {
         //             score = newPosScore;
@@ -1096,45 +1119,54 @@ namespace _Scripts
 
 
         // TODO: implement this and then we can do minimax algo
-        // private Tile[,] ApplyMoveToPosition(((int, int), (int, int), (int, int)) move, Tile[,] position, bool changeOnMainBoard = true)
-        // {
-        //     var (startTile, endTile, captureTile) = move;
-        //     var piece = startTile.OccupyingBoardPiece;
-        //
-        //     MovePieceToTile(piece, endTile, position, changeOnMainBoard);
-        //     if (captureTile)
-        //     {
-        //         RemovePiece(captureTile);
-        //     }
-        //
-        //     if (!piece.IsKing && ((piece.PieceColor == PieceColor.RED && endTile.YBoardPosition == _redKingRow) ||
-        //                           (piece.PieceColor == PieceColor.WHITE && endTile.YBoardPosition == _whiteKingRow)))
-        //     {
-        //         piece.ConvertToKing();
-        //     }
-        //
-        //     return position;
-        // }
-
-        private void MovePieceToTile(BoardPiece piece, (int, int) destinationTilePosition, Tile[,] position = null, bool changeOnMainBoard = true)
+        private Tile[,] ApplyMoveToPosition(((int, int), (int, int), (int, int)) move, Tile[,] position = null,
+            bool changeOnMainBoard = true)
         {
             if (position == null)
             {
                 position = _tiles;
             }
-            
-            if (changeOnMainBoard)
+
+            var (startTilePos, endTilePos, captureTilePos) = move;
+            var piece = position[startTilePos.Item1, startTilePos.Item2].OccupyingBoardPiece;
+
+            MovePieceToTile(piece, endTilePos, position, changeOnMainBoard);
+            if (captureTilePos != (-1, -1))
             {
-                piece.transform.position = _tiles[destinationTilePosition.Item1, destinationTilePosition.Item2].transform.position;
+                RemovePiece(captureTilePos, position, changeOnMainBoard);
             }
 
+            if (!piece.IsKing && ((piece.PieceColor == PieceColor.RED && endTilePos.Item2 == _redKingRow) ||
+                                  (piece.PieceColor == PieceColor.WHITE && endTilePos.Item2 == _whiteKingRow)))
+            {
+                piece.ConvertToKing();
+            }
+
+            return position;
+        }
+
+
+        // THIS IS THE PROBLEM CHILD
+        private void MovePieceToTile(BoardPiece piece, (int, int) destinationTilePosition, Tile[,] position = null,
+            bool changeOnMainBoard = true)
+        {
+            if (position == null)
+            {
+                position = _tiles;
+            }
+
+            if (changeOnMainBoard)
+            {
+                piece.transform.position = position[destinationTilePosition.Item1, destinationTilePosition.Item2]
+                    .transform.position;
+            }
             
             // (Tile with piece on it).OccupyingBoardPiece = null
             position[piece.OnTilePosition.Item1, piece.OnTilePosition.Item2].OccupyingBoardPiece = null;
-            
+
             // Change piece tilePos to destinationTilePos
             piece.OnTilePosition = (destinationTilePosition.Item1, destinationTilePosition.Item2);
-            
+
             // destinationTile.OccupyingBoardPiece = piece
             position[destinationTilePosition.Item1, destinationTilePosition.Item2].OccupyingBoardPiece = piece;
         }
@@ -1145,4 +1177,11 @@ public enum PlayerColor
 {
     RED,
     WHITE
+}
+
+public enum PieceType
+{
+    None,
+    Man,
+    King
 }

@@ -32,10 +32,10 @@ namespace _Scripts
                     BoardManager.Instance.GenerateBoard();
                     break;
                 case GameState.GenerateAndSetPieces:
-                    BoardManager.Instance.GenerateAndSetBoardPiece(BoardManager.Instance.StandardBoard);
+                    BoardManager.Instance.GenerateAndSetBoardPiece(BoardManager.Instance.CustomBoard5);
                     break;
                 case GameState.PlayCheckers:
-                    BoardManager.Instance.PlayCheckers(PlayerType.Computer, PlayerType.Computer);
+                    BoardManager.Instance.PlayCheckers(PlayerType.Computer, PlayerType.Human);
                     break;
                 case GameState.EndGameResult:
                     break;
